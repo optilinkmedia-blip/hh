@@ -1,0 +1,151 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Offer {
+  id               String           @id @default(cuid())
+  name             String
+  slug             String           @unique
+  tagline          String
+  description      String
+  logo             String
+  rating           Float
+  trustScore       Int              // 1-100
+  payoutMin        Float
+  payoutType       String           // PayPal, Gift Cards, Crypto, Bank
+  avgEarningsMonth String           // e.g. "$30 - $150 / mo"
+  timePerDay       String           // e.g. "15-30 mins"
+  easeOfUse        String           // Beginner, Intermediate
+  affiliateUrl     String
+  pros             String           // JSON stringified array or comma separated
+  cons             String           // JSON stringified array or comma separated
+  countries        OfferCountry[]
+  categories       OfferCategory[]
+  reviews          Review[]
+  faqs             OfferFaq[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model Country {
+  id          String         @id @default(cuid())
+  name        String
+  code        String         @unique // us, uk, ca, au, ie
+  slug        String         @unique
+  currency    String
+  flagEmoji   String
+  description String
+  offers      OfferCountry[]
+  faqs        CountryFaq[]
+  createdAt   DateTime       @default(now())
+}
+
+model OfferCountry {
+  offerId   String
+  countryId String
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@id([offerId, countryId])
+}
+
+model Category {
+  id      String          @id @default(cuid())
+  name    String
+  slug    String          @unique
+  offers  OfferCategory[]
+}
+
+model OfferCategory {
+  offerId    String
+  categoryId String
+  offer      Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([offerId, categoryId])
+}
+
+model Review {
+  id               String       @id @default(cuid())
+  offerId          String
+  offer            Offer        @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  authorName       String
+  authorTitle      String
+  rating           Float
+  summary          String
+  content          String       // Markdown content
+  payoutProof      String?      // Description of payout verification
+  verifiedUser     Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+}
+
+model OfferFaq {
+  id        String @id @default(cuid())
+  offerId   String
+  offer     Offer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+}
+
+model CountryFaq {
+  id        String  @id @default(cuid())
+  countryId String
+  country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+}
+
+model Comparison {
+  id          String   @id @default(cuid())
+  slug        String   @unique // e.g. swagbucks-vs-inboxdollars
+  offerAId    String
+  offerBId    String
+  winnerSlug  String
+  verdict     String
+  comparisonData String // JSON stringified comparison matrix
+  createdAt   DateTime @default(now())
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  author      String
+  category    String
+  readTime    String
+  publishedAt DateTime @default(now())
+  imageUrl    String
+}
+
+model ClickLog {
+  id          String   @id @default(cuid())
+  offerSlug   String
+  ip          String?
+  userAgent   String?
+  country     String?
+  subId       String?
+  utmSource   String?
+  utmMedium   String?
+  createdAt   DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  country   String?
+  createdAt DateTime @default(now())
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}

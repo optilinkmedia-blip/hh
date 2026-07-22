@@ -1,0 +1,6 @@
+{
+  "name": "Campus Cash World",
+  "description": "Legitimate survey recommendation platform and side hustle guide for students and young adults with country hubs, reviews, comparison engine, and interactive earnings calculators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
